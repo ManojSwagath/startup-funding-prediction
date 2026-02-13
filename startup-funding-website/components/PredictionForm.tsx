@@ -23,7 +23,7 @@ export default function PredictionForm({ onSubmit, loading }: PredictionFormProp
 
   useEffect(() => {
     // Fetch dropdown options from API
-    fetch('http://localhost:8000/api/options')
+    fetch('/api/options')
       .then(res => res.json())
       .then(data => setOptions(data))
       .catch(err => console.error('Failed to load options:', err))
