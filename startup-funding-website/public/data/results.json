@@ -1,0 +1,40 @@
+{
+  "models": [
+    {
+      "Model": "Gradient Boosting",
+      "R\u00b2 Score": 0.494517336141144,
+      "RMSE": 1.3990835492201392
+    },
+    {
+      "Model": "Random Forest",
+      "R\u00b2 Score": 0.4805479403779884,
+      "RMSE": 1.4182841634824306
+    },
+    {
+      "Model": "Lasso Regression",
+      "R\u00b2 Score": 0.1628574925772146,
+      "RMSE": 1.8004879311597202
+    },
+    {
+      "Model": "Ridge Regression",
+      "R\u00b2 Score": 0.13032407155331638,
+      "RMSE": 1.8351401713807776
+    },
+    {
+      "Model": "Linear Regression",
+      "R\u00b2 Score": -0.5074073660612837,
+      "RMSE": 2.4160495335346424
+    }
+  ],
+  "best_model": {
+    "name": "Gradient Boosting",
+    "r2_score": 0.494517336141144,
+    "rmse": 1.3990835492201392
+  },
+  "dataset_stats": {
+    "total_records": 3044,
+    "features_used": 2164,
+    "training_samples": 1780,
+    "testing_samples": 445
+  }
+}
