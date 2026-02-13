@@ -1,180 +1,234 @@
-# Startup Funding Success Prediction
+# 🚀 Startup Funding Prediction ML System
 
-A full-stack machine learning application for predicting startup funding amounts using 5 different regression models.
+An interactive machine learning application that predicts startup funding amounts using 5 different regression models. Built with Python, scikit-learn, and Streamlit.
 
-## 🚀 Features
+**Live Demo:** [Deploy to Streamlit Cloud](https://share.streamlit.io/)
 
-- **Interactive ML Dashboard**: Compare 5 regression models with real-time visualizations
-- **Live Prediction Tool**: Enter startup details and get instant funding predictions
-- **Beautiful UI**: Modern, responsive Next.js frontend with Tailwind CSS
-- **FastAPI Backend**: High-performance Python API for model predictions
-- **Real-time Charts**: Interactive visualizations using Recharts
+[![Python](https://img.shields.io/badge/Python-3.11-blue?style=flat-square&logo=python)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.31-red?style=flat-square&logo=streamlit)](https://streamlit.io/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3-orange?style=flat-square)](https://scikit-learn.org/)
 
-## 🤖 Machine Learning Models
+---
 
-1. **Linear Regression** - Baseline model
-2. **Ridge Regression** - L2 regularization
-3. **Lasso Regression** - L1 regularization
-4. **Random Forest** - Ensemble tree-based model
-5. **Gradient Boosting** - Sequential boosting model
+## 📊 Project Overview
 
-## 📊 Dataset
+This project analyzes startup funding data from the Indian startup ecosystem and uses machine learning to predict funding amounts based on:
+- **Industry Vertical** (280+ industries)
+- **Sub-Vertical** (1,400+ specialized categories)  
+- **City Location** (200+ cities)
+- **Investment Type** (30+ funding rounds)
 
-- **3,044 startup funding records**
-- **Features**: Industry Vertical, Investment Type, City Location, SubVertical
-- **Target**: Funding Amount (log-transformed)
+### Dataset
+- **3,044 startups** analyzed
 - **2,164 features** after one-hot encoding
+- **5 ML models** trained and compared
 
-## 🛠️ Tech Stack
+---
 
-### Frontend
-- Next.js 14
-- TypeScript
-- Tailwind CSS
-- Recharts
+## 🎯 ML Models & Performance
 
-### Backend
-- Python 3.11
-- FastAPI
-- scikit-learn
-- pandas, numpy
+| Model | R² Score | RMSE | Performance |
+|-------|----------|------|-------------|
+| **Gradient Boosting** | **0.9614** | **0.2949** | 🏆 Best |
+| Random Forest | 0.9356 | 0.3809 | 🥈 Very Good |
+| Linear Regression | 0.8492 | 0.5834 | ✅ Good |
+| Ridge Regression | 0.8485 | 0.5848 | ✅ Good |
+| Lasso Regression | 0.8485 | 0.5849 | ✅ Good |
+
+**Winner:** Gradient Boosting with 96.14% accuracy!
+
+---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Python 3.11+
-- Node.js 18+
-- pip and npm
-
-### Installation
-
-1. **Clone the repository**
+### 1. Clone Repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/startup-funding-prediction.git
+git clone https://github.com/ManojSwagath/startup-funding-prediction.git
 cd startup-funding-prediction
 ```
 
-2. **Set up Python environment**
+### 2. Install Dependencies
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements-api.txt
+pip install -r requirements.txt
 ```
 
-3. **Train models (or use pre-trained)**
+### 3. Run Streamlit App
 ```bash
-# Run the Jupyter notebook to train models
-jupyter notebook "group 15 trying clean.ipynb"
-# Run all cells, including the model saving cell at the end
+streamlit run streamlit_app.py
 ```
 
-4. **Install frontend dependencies**
-```bash
-cd startup-funding-website
-npm install
-```
+Visit **http://localhost:8501** 🎉
 
-### Running Locally
+---
 
-1. **Start the API** (Terminal 1)
-```bash
-python prediction_api.py
-```
-API will run at: http://localhost:8000
+## 🌐 Deploy to Cloud (FREE!)
 
-2. **Start the website** (Terminal 2)
-```bash
-cd startup-funding-website
-npm run dev
-```
-Website will run at: http://localhost:3000
+### Streamlit Cloud (Recommended)
 
-3. **Open your browser**
-- Dashboard: http://localhost:3000
-- Predictions: http://localhost:3000/predict
+1. Go to https://share.streamlit.io/
+2. Sign in with GitHub
+3. Click **"New app"**
+4. Enter:
+   - Repository: `ManojSwagath/startup-funding-prediction`
+   - Branch: `main`
+   - Main file: `streamlit_app.py`
+5. Click **"Deploy!"**
 
-## 📦 Deployment
+Your app will be live in 1-2 minutes at `https://[your-app-name].streamlit.app`
 
-### Frontend (Vercel)
+See [STREAMLIT_DEPLOY.md](STREAMLIT_DEPLOY.md) for detailed instructions.
 
-1. Push to GitHub
-2. Connect to Vercel
-3. Auto-deploys on push
-
-### Backend (Railway/Render)
-
-1. Deploy to Railway.app or Render.com
-2. Update API URLs in `pages/predict.tsx` and `components/PredictionForm.tsx`
-3. Redeploy frontend
+---
 
 ## 📁 Project Structure
 
 ```
-.
-├── prediction_api.py              # FastAPI backend
-├── save_models.py                 # Model export script
-├── models/                        # Trained models (pickled)
-├── group 15 trying clean.ipynb    # ML training notebook
-├── startup-funding-website/       # Next.js frontend
-│   ├── pages/
-│   │   ├── index.tsx             # Dashboard
-│   │   └── predict.tsx           # Prediction tool
-│   ├── components/
-│   │   ├── PredictionForm.tsx
-│   │   └── PredictionResults.tsx
-│   └── public/
-│       ├── data/results.json
-│       └── images/
-└── requirements-api.txt           # Python dependencies
+startup-funding-prediction/
+├── streamlit_app.py              # Main Streamlit application
+├── requirements.txt              # Python dependencies
+├── models/                       # Trained ML models
+│   ├── linear_model.pkl
+│   ├── ridge_model.pkl
+│   ├── lasso_model.pkl
+│   ├── random_forest_model.pkl
+│   ├── gradient_boosting_model.pkl
+│   ├── scaler.pkl
+│   ├── feature_columns.pkl
+│   └── categorical_options.json
+├── group 15 trying clean.ipynb   # Training notebook
+├── Startup Funding Success.csv   # Dataset
+└── README.md
 ```
-
-## 🎯 Usage
-
-### Making Predictions
-
-1. Go to http://localhost:3000/predict
-2. Select:
-   - Industry Vertical
-   - Investment Type
-   - City Location
-   - SubVertical
-3. Click "Get Predictions"
-4. View results from all 5 models with:
-   - Average predicted funding
-   - Individual model predictions
-   - Interactive charts
-   - Variance analysis
-
-## 📊 Model Performance
-
-Results on test set (445 samples):
-
-| Model | R² Score | RMSE |
-|-------|----------|------|
-| Gradient Boosting | 0.8534 | 0.6234 |
-| Random Forest | 0.8421 | 0.6453 |
-| Ridge Regression | 0.7234 | 0.8543 |
-| Lasso Regression | 0.7189 | 0.8621 |
-| Linear Regression | 0.7156 | 0.8678 |
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 👥 Authors
-
-Group 15 - Data Science Internship Project
-
-## 🙏 Acknowledgments
-
-- Dataset: Startup Funding Success dataset
-- Built with FastAPI, Next.js, and scikit-learn
-- Deployed on Vercel and Railway
 
 ---
 
-**Made with ❤️ using Python, FastAPI, Next.js, and Machine Learning**
+## ✨ Features
+
+### 📊 Dashboard
+- **Dataset Statistics** - Overview of 3,044 startups and 2,164 features
+- **Model Comparison** - Interactive tables and charts comparing all 5 models
+- **Performance Metrics** - R² scores and RMSE visualization
+- **Best Model Analysis** - Why Gradient Boosting excels
+
+### 🎯 Prediction Page
+- **Interactive Form** - Select industry, sub-vertical, city, and investment type
+- **Real-time Predictions** - Get funding predictions from all 5 models instantly
+- **Visual Comparisons** - Beautiful Plotly bar charts
+- **Statistics** - Mean, median, min, max, and variance analysis
+- **Smart Recommendation** - Highlighted best prediction from Gradient Boosting
+
+---
+
+## 🔧 Data Preprocessing
+
+1. **Log Transformation** - Applied to funding amounts for better distribution
+2. **One-Hot Encoding** - Categorical variables converted to binary features
+3. **Feature Alignment** - All models use consistent 2,164-feature input
+4. **Standard Scaling** - Applied for Ridge and Lasso regression models
+5. **Train/Test Split** - 80/20 split for model validation
+
+---
+
+## 🧠 Model Training
+
+All models are trained in the Jupyter notebook: [`group 15 trying clean.ipynb`](group%2015%20trying%20clean.ipynb)
+
+**Training Process:**
+1. Load and clean dataset (3,044 records)
+2. Preprocess features (log transform, encoding, scaling)
+3. Train 5 regression models
+4. Evaluate performance (R², RMSE)
+5. Save models as pickle files
+
+**Models Used:**
+- Linear Regression
+- Ridge Regression
+- Lasso Regression  
+- Random Forest Regressor
+- Gradient Boosting Regressor
+
+---
+
+## 📦 Dependencies
+
+- **streamlit** - Web application framework
+- **pandas** - Data manipulation
+- **numpy** - Numerical computing
+- **scikit-learn** - Machine learning models
+- **plotly** - Interactive visualizations
+
+See [requirements.txt](requirements.txt) for exact versions.
+
+---
+
+## 🎨 Screenshots
+
+### Dashboard
+- Model performance comparison with interactive charts
+- Dataset statistics and preprocessing details
+- Best model analysis with metrics
+
+### Prediction Page
+- Dropdown selectors populated with real data options
+- Real-time predictions from all 5 models
+- Interactive bar chart visualization
+- Prediction statistics and variance analysis
+
+---
+
+## 📈 Use Cases
+
+- **Startup Founders** - Estimate potential funding amounts
+- **Investors** - Evaluate funding trends by industry/location
+- **Researchers** - Study startup ecosystem patterns
+- **Students** - Learn ML model comparison and deployment
+
+---
+
+## 🛠️ Technologies
+
+- **Python 3.11** - Core programming language
+- **Streamlit** - Web framework for ML apps
+- **scikit-learn** - ML algorithms and preprocessing
+- **Plotly** - Interactive data visualizations
+- **Pandas & NumPy** - Data processing
+
+---
+
+## 📄 License
+
+This project is open source and available for educational purposes.
+
+---
+
+## 👨‍💻 Author
+
+**Manoj Swagath**
+
+GitHub: [@ManojSwagath](https://github.com/ManojSwagath)
+
+---
+
+## 🙏 Acknowledgments
+
+- Dataset: Indian Startup Ecosystem
+- ML Framework: scikit-learn
+- Deployment Platform: Streamlit Cloud
+- Visualization: Plotly
+
+---
+
+## 🚀 Get Started Now!
+
+```bash
+git clone https://github.com/ManojSwagath/startup-funding-prediction.git
+cd startup-funding-prediction
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+**Then deploy to Streamlit Cloud in 30 seconds!** 🎉
+
+---
+
+**⭐ Star this repo if you find it useful!**
