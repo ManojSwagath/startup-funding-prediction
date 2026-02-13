@@ -3,8 +3,10 @@ import pandas as pd
 import numpy as np
 import pickle
 import plotly.graph_objects as go
+import plotly.express as px
 import json
 from pathlib import Path
+from datetime import datetime
 
 # Page config
 st.set_page_config(
@@ -31,11 +33,25 @@ def load_models():
     
     return models
 
+# Load dataset
+@st.cache_data
+def load_dataset():
+    df = pd.read_csv('Startup Funding Success.csv')
+    # Clean amount column
+    df['Amount in USD'] = df['Amount in USD'].astype(str).str.replace(',', '').replace('nan', np.nan)
+    df['Amount_Numeric'] = pd.to_numeric(df['Amount in USD'], errors='coerce')
+    # Parse dates
+    df['Date'] = pd.to_datetime(df['Date dd/mm/yyyy'], format='%d/%m/%Y', errors='coerce')
+    df['Year'] = df['Date'].dt.year
+    df['Month'] = df['Date'].dt.month
+    return df
+
 models = load_models()
+df = load_dataset()
 
 # Sidebar navigation
 st.sidebar.title("🚀 Navigation")
-page = st.sidebar.radio("Go to", ["Dashboard", "Make Prediction"])
+page = st.sidebar.radio("Go to", ["Dashboard", "Data Analysis", "Make Prediction"])
 
 # Helper function to format currency
 def format_currency(amount):
@@ -107,8 +123,7 @@ if page == "Dashboard":
     st.dataframe(
         df_models.style.background_gradient(subset=['R² Score'], cmap='Greens')
                       .background_gradient(subset=['RMSE'], cmap='Reds_r')
-                      .format({'R² Score': '{:.4f}', 'RMSE': '{:.4f}'}),
-        use_container_width=True
+                      .format({'R² Score': '{:.4f}', 'RMSE': '{:.4f}'})
     )
     
     # Bar chart
@@ -125,7 +140,7 @@ if page == "Dashboard":
             xaxis_tickangle=-45,
             height=400
         )
-        st.plotly_chart(fig_r2, use_container_width=True)
+        st.plotly_chart(fig_r2, width='stretch')
     
     with col2:
         fig_rmse = go.Figure(data=[
@@ -138,7 +153,7 @@ if page == "Dashboard":
             xaxis_tickangle=-45,
             height=400
         )
-        st.plotly_chart(fig_rmse, use_container_width=True)
+        st.plotly_chart(fig_rmse, width='stretch')
     
     st.markdown("---")
     
@@ -157,6 +172,155 @@ if page == "Dashboard":
         - Sequential error correction
         """)
 
+# Data Analysis Page
+elif page == "Data Analysis":
+    st.title("📊 Data Analysis & Insights")
+    st.markdown("### Exploring the Indian Startup Ecosystem Funding Data")
+    
+    # Data Overview
+    st.header("📈 Dataset Overview")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Total Startups", f"{len(df):,}")
+    with col2:
+        st.metric("Total Industries", f"{df['Industry Vertical'].nunique()}")
+    with col3:
+        st.metric("Total Cities", f"{df['City  Location'].nunique()}")
+    with col4:
+        total_funding = df['Amount_Numeric'].sum()
+        st.metric("Total Funding", f"${total_funding/1e9:.2f}B")
+    
+    st.markdown("---")
+    
+    # Top Industries
+    st.header("🏭 Top 10 Industries by Total Funding")
+    industry_funding = df.groupby('Industry Vertical')['Amount_Numeric'].sum().sort_values(ascending=False).head(10)
+    fig_industry = go.Figure(data=[
+        go.Bar(
+            y=industry_funding.index,
+            x=industry_funding.values,
+            orientation='h',
+            marker=dict(color='#3b82f6'),
+            text=[f"${val/1e6:.1f}M" for val in industry_funding.values],
+            textposition='auto'
+        )
+    ])
+    fig_industry.update_layout(
+        title="Top 10 Industries by Funding Amount",
+        xaxis_title="Total Funding (USD)",
+        yaxis_title="Industry",
+        height=500,
+        showlegend=False
+    )
+    st.plotly_chart(fig_industry, width='stretch')
+    
+    st.markdown("---")
+    
+    # City Analysis
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("🌆 Top 10 Cities by Funding")
+        city_funding = df.groupby('City  Location')['Amount_Numeric'].sum().sort_values(ascending=False).head(10)
+        fig_city = px.bar(
+            x=city_funding.values,
+            y=city_funding.index,
+            orientation='h',
+            labels={'x': 'Total Funding (USD)', 'y': 'City'},
+            color=city_funding.values,
+            color_continuous_scale='Blues'
+        )
+        fig_city.update_layout(height=400, showlegend=False)
+        st.plotly_chart(fig_city, width='stretch')
+    
+    with col2:
+        st.subheader("💰 Investment Type Distribution")
+        investment_dist = df['InvestmentnType'].value_counts().head(10)
+        fig_investment = px.pie(
+            values=investment_dist.values,
+            names=investment_dist.index,
+            hole=0.4
+        )
+        fig_investment.update_layout(height=400)
+        st.plotly_chart(fig_investment, width='stretch')
+    
+    st.markdown("---")
+    
+    # Funding Trends Over Time
+    st.header("📅 Funding Trends Over Time")
+    yearly_funding = df.groupby('Year')['Amount_Numeric'].agg(['sum', 'count']).reset_index()
+    yearly_funding['sum'] = yearly_funding['sum'] / 1e9  # Convert to billions
+    
+    fig_trends = go.Figure()
+    fig_trends.add_trace(go.Scatter(
+        x=yearly_funding['Year'],
+        y=yearly_funding['sum'],
+        mode='lines+markers',
+        name='Total Funding ($B)',
+        line=dict(color='#10b981', width=3),
+        marker=dict(size=10)
+    ))
+    fig_trends.add_trace(go.Bar(
+        x=yearly_funding['Year'],
+        y=yearly_funding['count'],
+        name='Number of Deals',
+        yaxis='y2',
+        marker=dict(color='#3b82f6', opacity=0.6)
+    ))
+    fig_trends.update_layout(
+        title="Annual Funding Trends and Deal Count",
+        xaxis_title="Year",
+        yaxis_title="Total Funding (Billion USD)",
+        yaxis2=dict(title="Number of Deals", overlaying='y', side='right'),
+        height=500,
+        hovermode='x unified'
+    )
+    st.plotly_chart(fig_trends, width='stretch')
+    
+    st.markdown("---")
+    
+    # Top Funded Startups
+    st.header("🏆 Top 10 Funded Startups")
+    top_startups = df.nlargest(10, 'Amount_Numeric')[['Startup Name', 'Industry Vertical', 'City  Location', 'Amount_Numeric', 'Date']]
+    top_startups['Funding'] = top_startups['Amount_Numeric'].apply(lambda x: f"${x/1e6:.2f}M" if pd.notna(x) else "N/A")
+    top_startups['Date'] = top_startups['Date'].dt.strftime('%b %Y')
+    
+    display_df = top_startups[['Startup Name', 'Industry Vertical', 'City  Location', 'Funding', 'Date']].reset_index(drop=True)
+    display_df.index = display_df.index + 1
+    st.dataframe(display_df, height=400)
+    
+    st.markdown("---")
+    
+    # Key Insights
+    st.header("💡 Key Insights")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        avg_funding = df['Amount_Numeric'].mean()
+        st.info(f"""
+        **Average Funding**
+        
+        ${avg_funding/1e6:.2f}M per startup
+        """)
+    
+    with col2:
+        most_active_city = df['City  Location'].value_counts().index[0]
+        city_count = df['City  Location'].value_counts().values[0]
+        st.success(f"""
+        **Most Active City**
+        
+        {most_active_city} ({city_count} deals)
+        """)
+    
+    with col3:
+        most_popular_type = df['InvestmentnType'].value_counts().index[0]
+        type_count = df['InvestmentnType'].value_counts().values[0]
+        st.warning(f"""
+        **Most Popular Investment**
+        
+        {most_popular_type} ({type_count} deals)
+        """)
+
 # Prediction Page
 elif page == "Make Prediction":
     st.title("🎯 Predict Startup Funding")
@@ -169,30 +333,30 @@ elif page == "Make Prediction":
         with col1:
             industry = st.selectbox(
                 "Industry Vertical",
-                options=sorted(models['options']['IndustryVertical']),
+                options=sorted(models['options']['industries']),
                 help="Select the primary industry sector"
             )
             
             city = st.selectbox(
                 "City Location",
-                options=sorted(models['options']['CityLocation']),
+                options=sorted(models['options']['cities']),
                 help="Select the city where the startup is based"
             )
         
         with col2:
             sub_vertical = st.selectbox(
                 "Sub-Vertical",
-                options=sorted(models['options']['SubVertical']),
+                options=sorted(models['options']['sub_verticals']),
                 help="Select the specific business category"
             )
             
             investment_type = st.selectbox(
                 "Investment Type",
-                options=sorted(models['options']['InvestmentType']),
+                options=sorted(models['options']['investment_types']),
                 help="Select the type of funding round"
             )
         
-        submitted = st.form_submit_button("🚀 Predict Funding", use_container_width=True)
+        submitted = st.form_submit_button("🚀 Predict Funding", width='stretch')
     
     if submitted:
         # Create DataFrame
@@ -260,7 +424,7 @@ elif page == "Make Prediction":
             showlegend=False
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         
         # Statistics
         st.markdown("---")
